@@ -1,5 +1,4 @@
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import {
   View,
   Text,
@@ -12,16 +11,125 @@ import {
   Easing,
   FlatList,
   TextInput,
+  Switch,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Octicons from 'react-native-vector-icons/Octicons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { clearAll } from '../../utils/Storage';
 import { useDispatch } from 'react-redux';
 import { checkuserToken } from '../../redux/actions/auth';
+import { Loader } from '../../components/Loader';
+import LinearGradient from 'react-native-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
+import { MyStatusBar } from '../../constants/config';
+import { BRAND } from '../../constants/color';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { useColorScheme } from 'react-native';
+import { ProfileContext } from '../ProfileContext/ProfileContext';
+import { DMSans36ptBold, Manrope, ManropeBold, ManropeRegular, OutfitRegular, PlusJakartaSansBold, UbuntuBold, UbuntuRegular } from '../../constants/fontfamily';
+
+
+
+
+
+const Tab = createMaterialTopTabNavigator();
+
+const TopTabs = ({ theme, colors }) => {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        tabBarStyle: {
+          backgroundColor: colors.headerBackground,
+          
+        },
+        tabBarActiveTintColor: theme === 'dark' ? '#FFFFFF' : '#FFFFF',
+        tabBarInactiveTintColor: theme === 'dark' ? 'white' : 'white',
+        tabBarIndicatorStyle: {
+          backgroundColor: theme === 'dark' ? '#3B82F6' : '#FFFFFF',
+          height: 3,
+          borderRadius: 2,
+        },
+        tabBarLabelStyle: {
+          fontWeight: '600',
+        },
+        swipeEnabled: true,
+        tabBarPressColor: theme === 'dark' ? '#1F2937' : '#F3F4F6',
+      }}
+    >
+      <Tab.Screen name="Assigned Jobs" component={AssignedJobs} />
+<Tab.Screen 
+  name="Approx Jobs" 
+  children={() => <ApproxJobs theme={theme} colors={colors} />} 
+/>
+    </Tab.Navigator>
+  );
+};
+
+
 
 const { width: WIDTH, height: HEIGHT } = Dimensions.get('window');
 
-// Mock data for all content sections
+// Theme color configuration
+// const COLORS = {
+//   light: {
+//     background: '#F3F4F6',
+//     backgroundGradient: ['#FFFFFF', '#F3F4F6'],
+//     headerBackground: '#3B82F6',
+//     headerText: '#FFFFFF',
+//     headerSubtext: 'rgba(255, 255, 255, 0.9)',
+//     text: '#111827',
+//     subtext: '#6B7280',
+//     muted: '#9CA3AF',
+//     searchBackground: 'rgba(59, 130, 246, 0.1)',
+//     searchText: '#111827',
+//     searchPlaceholder: '#9CA3AF',
+//     cardBackground: '#FFFFFF',
+//     cardBorder: '#E5E7EB',
+//     navBackground: '#FFFFFF',
+//     navBorder: '#E5E7EB',
+//     navText: '#6B7280',
+//     navTextActive: '#3B82F6',
+//     navIcon: '#6B7280',
+//     navIconActive: '#3B82F6',
+//     specialButton: '#F97316',
+//     specialButtonText: '#FFFFFF',
+//     buttonPrimary: '#10B981',
+//     buttonText: '#FFFFFF',
+//     profileButtonBg: 'rgba(255, 255, 255, 0.2)',
+//     notificationButtonBg: 'rgba(255, 255, 255, 0.2)',
+//     statusBar: 'dark-content',
+//   },
+//   dark: {
+//     background: '#0F172A',
+//     backgroundGradient: ['#0F172A', '#1E293B'],
+//     headerBackground: '#1E293B',
+//     headerText: '#FFFFFF',
+//     headerSubtext: 'rgba(255, 255, 255, 0.8)',
+//     text: '#FFFFFF',
+//     subtext: '#94A3B8',
+//     muted: '#64748B',
+//     searchBackground: 'rgba(30, 41, 59, 0.8)',
+//     searchText: '#FFFFFF',
+//     searchPlaceholder: 'rgba(255, 255, 255, 0.5)',
+//     cardBackground: '#1E293B',
+//     cardBorder: '#334155',
+//     navBackground: '#1E293B',
+//     navBorder: '#334155',
+//     navText: '#94A3B8',
+//     navTextActive: '#FFFFFF',
+//     navIcon: '#94A3B8',
+//     navIconActive: '#FFFFFF',
+//     specialButton: '#F97316',
+//     specialButtonText: '#FFFFFF',
+//     buttonPrimary: '#10B981',
+//     buttonText: '#FFFFFF',
+//     profileButtonBg: 'rgba(255, 255, 255, 0.1)',
+//     notificationButtonBg: 'rgba(255, 255, 255, 0.1)',
+//     statusBar: 'light-content',
+//   },
+// };
+
 const appData = {
   featured: [
     { id: '1', title: 'Assigned', subtitle: '5 new tasks', buttonText: 'View' },
@@ -30,181 +138,472 @@ const appData = {
   ],
   navigation: [
     { id: 'home', label: 'Home', icon: 'home', active: true },
-    { id: 'discover', label: 'Discover', icon: 'search', active: false },
+    { id: 'settings', label: 'Settings', icon: 'settings', active: false },
     { id: 'create', label: '', icon: 'add', special: true },
     { id: 'favorites', label: 'Favorites', icon: 'favorite', active: false },
     { id: 'profile', label: 'Profile', icon: 'person', active: false },
+  ],
+ profileStats : [
+    { label: 'Assigned', value: '24' },
+    { label: 'Completed', value: '8' },
+    { label: 'Pending', value: '15' },
   ]
 };
+const dummyData = [
+  { id: '1', title: 'Job 1', description: 'Description for Job 1' },
+  { id: '2', title: 'Job 2', description: 'Description for Job 2' },
+  { id: '3', title: 'Job 3', description: 'Description for Job 3' },
+  { id: '4', title: 'Job 4', description: 'Description for Job 4' },
+  { id: '5', title: 'Job 5', description: 'Description for Job 5' },
+];
 
-// Reusable card component
-const ContentCard = ({ item, style, isHorizontal, index = 0 }) => {
-  const scaleAnim = useRef(new Animated.Value(0.9)).current;
-  const opacityAnim = useRef(new Animated.Value(0)).current;
-  
-  useEffect(() => {
-    // Staggered animation effect based on index
-    const delay = index * 100;
+
+
+const AssignedJobs = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredData, setFilteredData] = useState(dummyData);
+  // const isDarkMode = useColorScheme() === 'dark';
+// const colors = isDarkMode ? COLORS.dark : COLORS.light;
+
+  const handleSearch = (text) => {
+    const normalizedText = text.toLowerCase().replace(/\s+/g, '').trim();
+    setSearchQuery(text);
+
+    if (normalizedText.length >= 3) {
+      const filtered = dummyData.filter(item => {
+        const title = item.title.toLowerCase().replace(/\s+/g, '').trim();
+        const description = item.description.toLowerCase().replace(/\s+/g, '').trim();
+        return title.includes(normalizedText) || description.includes(normalizedText);
+      });
+      setFilteredData(filtered);
+    } else {
+      setFilteredData(dummyData); // Show all if less than 3 characters
+    }
+  };
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity 
+      style={{
+        backgroundColor: '#FFFFFF',
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 10,
+        elevation: 3,
+        borderLeftWidth: 4,
+      }}
+    >
+      <View style={{ 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'flex-start',
+        // marginBottom: 8
+      }}>
+        <View style={{ flex: 1 }}>
+          <Text style={{ 
+            fontSize: 18, 
+            fontWeight: '600', 
+            color: '#1F2937',
+            // marginBottom: 4
+          }}>
+            {item.title}
+          </Text>
     
-    Animated.sequence([
-      Animated.delay(delay),
-      Animated.parallel([
-        Animated.timing(scaleAnim, {
-          toValue: 1,
-          duration: 400,
-          useNativeDriver: true,
-          easing: Easing.out(Easing.back(1.5)),
-        }),
-        Animated.timing(opacityAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        })
-      ])
-    ]).start();
-  }, []);
+        </View>
+    
+      </View>
+      
+      <Text style={{ 
+        fontSize: 14, 
+        color: '#4B5563',
+        // lineHeight: 20,
+        marginBottom: 8
+      }}>
+        {item.description}
+      </Text>
+      
+      <View style={{ 
+        flexDirection: 'row', 
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderTopWidth: 1,
+        borderTopColor: '#E5E7EB',
+        paddingTop: 10
+      }}>
+        <TouchableOpacity style={{
+          backgroundColor: '#F3F4F6',
+          paddingHorizontal: 12,
+          paddingVertical: 6,
+          borderRadius: 8,
+          flexDirection: 'row',
+          alignItems: 'center'
+        }}>
+          <Ionicons name="eye-outline" size={16} color="#4B5563" style={{ marginRight: 4 }} />
+          <Text style={{ fontSize: 12, color: '#4B5563', fontWeight: '500' }}>View Details</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={{
+          backgroundColor: '#3B82F6',
+          paddingHorizontal: 12,
+          paddingVertical: 6,
+          borderRadius: 8,
+          flexDirection: 'row',
+          alignItems: 'center'
+        }}>
+          <Ionicons name="briefcase-outline" size={16} color="#FFFFFF" style={{ marginRight: 4 }} />
+          <Text style={{ fontSize: 12, color: '#FFFFFF', fontWeight: '500' }}>Apply Now</Text>
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
+  );
 
-  const cardStyles = isHorizontal ? styles.featuredCard : styles.gridCard;
-  const titleStyles = isHorizontal ? styles.featuredTitle : styles.quickAccessTitle;
-  const subtitleStyles = isHorizontal ? styles.featuredSubtitle : styles.quickAccessSubtitle;
-  const buttonStyles = isHorizontal ? styles.featuredButton : styles.quickAccessButton;
-  const buttonTextStyles = isHorizontal ? styles.featuredButtonText : styles.quickAccessButtonText;
-
-  const [isPressed, setIsPressed] = useState(false);
-  
-  const onPressIn = () => setIsPressed(true);
-  const onPressOut = () => setIsPressed(false);
-  
-  // Card press animation
-  const cardScale = isPressed ? 0.97 : 1;
+  const EmptyListComponent = () => (
+    <View style={{ 
+      flex: 1, 
+      // justifyContent: 'center', 
+      alignItems: 'center',
+      // paddingTop: 20
+    }}>
+      <Ionicons name="search-outline" size={60} color="#D1D5DB" />
+      <Text style={{ 
+        textAlign: 'center', 
+        marginTop: 16, 
+        fontSize: 18, 
+        fontWeight: '500',
+        color: '#6B7280' 
+      }}>
+        No jobs found
+      </Text>
+      
+    </View>
+  );
 
   return (
-    <Animated.View 
-      style={[
-        cardStyles, 
-        style,
-        { 
-          opacity: opacityAnim,
-          transform: [{ scale: scaleAnim }] 
-        }
-      ]}
+    <View style={{ 
+      flex: 1,
+      padding: 12,
+      backgroundColor: '#F9FAFB'
+    }}>
+      
+      <View style={{ 
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}>
+        <Text style={{ 
+          fontSize: 20, 
+          color: '#111827',
+          fontFamily:PlusJakartaSansBold
+        }}>
+          Assigned Jobs
+        </Text>
+        <TouchableOpacity style={{
+          width: 40,
+          height: 40,
+          borderRadius: 20,
+          backgroundColor: '#F3F4F6',
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginBottom:5
+        }}>
+          <Ionicons name="options-outline" size={20} color="#374151" />
+        </TouchableOpacity>
+      </View>
+      
+      <View style={{ 
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        borderRadius: 12,
+        paddingHorizontal: 12,
+        height: 50,
+        marginBottom: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        elevation: 2,
+      }}>
+        <Ionicons name="search-outline" size={20} color="#9CA3AF" style={{ marginRight: 8 }} />
+        <TextInput
+          placeholder="Search jobs..."
+          placeholderTextColor="#9CA3AF"
+          value={searchQuery}
+          onChangeText={handleSearch}
+          style={{
+            flex: 1,
+            fontSize: 16,
+            color: '#1F2937',
+          }}
+        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={() => handleSearch('')}>
+            <Ionicons name="close-circle" size={20} color="#9CA3AF" />
+          </TouchableOpacity>
+        )}
+      </View>
+      
+
+
+      {filteredData.length === 0 ? (
+        <EmptyListComponent />
+      ) : (
+        <View style={{ height: 300 }}>
+          <FlatList
+            data={searchQuery.length >= 3 ? filteredData : dummyData}
+            renderItem={renderItem}
+            keyExtractor={item => item.id.toString()}
+            contentContainerStyle={{
+              paddingBottom: 20,
+            }}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
+      )}
+      </View>
+  )
+}
+const ApproxJobs = ({ theme, colors }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredData, setFilteredData] = useState(dummyData);
+
+  const handleSearch = (text) => {
+    const normalizedText = text.toLowerCase().replace(/\s+/g, '').trim();
+    setSearchQuery(text);
+
+    if (normalizedText.length >= 3) {
+      const filtered = dummyData.filter(item => {
+        const title = item.title.toLowerCase().replace(/\s+/g, '').trim();
+        const description = item.description.toLowerCase().replace(/\s+/g, '').trim();
+        return title.includes(normalizedText) || description.includes(normalizedText);
+      });
+      setFilteredData(filtered);
+    } else {
+      setFilteredData(dummyData); // Show all if less than 3 characters
+    }
+  };
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity 
+      style={{
+        backgroundColor: colors.card,
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 10,
+        elevation: 3,
+  borderLeftWidth: 4,
+        borderLeftColor: colors.primary || '#3B82F6'      }}
     >
-      {/* <TouchableOpacity 
-        activeOpacity={0.9}
-        onPressIn={onPressIn}
-        onPressOut={onPressOut}
-        style={{ flex: 1, transform: [{ scale: cardScale }] }}
-      > */}
-        <View style={isHorizontal ? styles.featuredCardInner : styles.quickAccessInner}>
-          <View style={isHorizontal ? styles.featuredTextContainer : styles.quickAccessText}>
-            <Text style={titleStyles}>{item.title}</Text>
-            <Text style={subtitleStyles}>{item.subtitle}</Text>
-            <TouchableOpacity 
-              style={buttonStyles}
-              onPress={() => console.log(`${item.title} button pressed`)}
-            >
-              <Text style={buttonTextStyles}>{item.buttonText || 'Open'}</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={isHorizontal ? styles.featuredImagePlaceholder : styles.quickAccessImagePlaceholder}>
-            {/* Placeholder for images */}
+      <View style={{ 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'flex-start',
+        // marginBottom: 8
+      }}>
+        <View style={{ flex: 1 }}>
+          <Text style={{ 
+            fontSize: 18, 
+            fontWeight: '600', 
+            color: '#1F2937',
+            // marginBottom: 4
+          }}>
+            {item.title}
+          </Text>
+          <View style={{ 
+            flexDirection: 'row', 
+            alignItems: 'center',
+            // marginBottom: 10
+          }}>
+            <View style={{ 
+              paddingHorizontal: 8,
+              // paddingVertical: 2,
+              borderRadius: 12,
+              marginRight: 8
+            }}>
+              <Text style={{ 
+                fontSize: 12, 
+                fontWeight: '500'
+              }}>
+                {item.category}
+              </Text>
+            </View>
+            <Text style={{ 
+              fontSize: 14,
+              color: '#059669',
+              fontWeight: '600'
+            }}>
+              {item.budget}
+            </Text>
           </View>
         </View>
-    </Animated.View>
-  );
-};
-
-// Reusable section component with animations
-const ContentSection = ({ title, data, renderItem, horizontal = false, style }) => {
-    const titleAnim = useRef(new Animated.Value(0)).current;
-    const listAnim = useRef(new Animated.Value(horizontal ? WIDTH : 50)).current;
-    const scrollY = useRef(new Animated.Value(0)).current;
-  
-    useEffect(() => {
-      Animated.sequence([
-        Animated.timing(titleAnim, {
-          toValue: 1,
-          duration: 400,
-          useNativeDriver: true,
-          easing: Easing.out(Easing.quad),
-        }),
-        Animated.spring(listAnim, {
-          toValue: 0,
-          tension: 50,
-          friction: 7,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }, []);
-  
-    return (
-      <View style={[styles.sectionContainer, style]}>
-        <Animated.Text
-          style={[
-            styles.sectionTitle,
-            {
-              opacity: titleAnim,
-              transform: [
-                {
-                  translateY: titleAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [20, 0],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          {title}
-        </Animated.Text>
-    <Animated.ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-            { useNativeDriver: true }
-          )}
-          scrollEventThrottle={16}
-        >
-        <Animated.View
-          style={{
-            transform: [horizontal ? { translateX: listAnim } : { translateY: listAnim }],
-            width: '100%',
-          }}
-        >
-         <Animated.FlatList
-  data={data}
-  renderItem={renderItem}
-  keyExtractor={(item) => item.id}
-//   horizontal={horizontal}
-  onScroll={
-    scrollY
-      ? Animated.event(
-          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: true }
-        )
-      : null
-  }
-  scrollEventThrottle={16}
-  showsVerticalScrollIndicator={false}
-  showsHorizontalScrollIndicator={false}
-  snapToInterval={WIDTH * 0.85}
-  snapToAlignment="center"
-  decelerationRate="fast"
-  contentContainerStyle={styles.featuredListContainer}
-/>
-
-        </Animated.View>
-        </Animated.ScrollView>
+ 
       </View>
-    );
-  };
-  
+      
+      <Text style={{ 
+        fontSize: 14, 
+        color: '#4B5563',
+        // lineHeight: 20,
+        marginBottom: 8
+      }}>
+        {item.description}
+      </Text>
+      
+      <View style={{ 
+        flexDirection: 'row', 
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderTopWidth: 1,
+        borderTopColor: '#E5E7EB',
+        paddingTop: 10
+      }}>
+        <TouchableOpacity style={{
+          backgroundColor: '#F3F4F6',
+          paddingHorizontal: 12,
+          paddingVertical: 6,
+          borderRadius: 8,
+          flexDirection: 'row',
+          alignItems: 'center'
+        }}>
+          <Ionicons name="eye-outline" size={16} color="#4B5563" style={{ marginRight: 4 }} />
+          <Text style={{ fontSize: 12, color: '#4B5563', fontWeight: '500' }}>View Details</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={{
+          backgroundColor: '#3B82F6',
+          paddingHorizontal: 12,
+          paddingVertical: 6,
+          borderRadius: 8,
+          flexDirection: 'row',
+          alignItems: 'center'
+        }}>
+          <Ionicons name="briefcase-outline" size={16} color="#FFFFFF" style={{ marginRight: 4 }} />
+          <Text style={{ fontSize: 12, color: '#FFFFFF', fontWeight: '500' }}>Apply Now</Text>
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
+  );
 
-// NavButton component
-const NavButton = ({ item, onPress }) => {
+  const EmptyListComponent = () => (
+    <View style={{ 
+      flex: 1, 
+      // justifyContent: 'center', 
+      alignItems: 'center',
+      // paddingTop: 20
+    }}>
+      <Ionicons name="search-outline" size={60} color="#D1D5DB" />
+      <Text style={{ 
+        textAlign: 'center', 
+        marginTop: 16, 
+        fontSize: 18, 
+        fontWeight: '500',
+        color: '#6B7280' 
+      }}>
+        No jobs found
+      </Text>
+      
+    </View>
+  );
+
+  return (
+    <View style={{ 
+      flex: 1,
+      padding: 12,
+backgroundColor: colors.background
+    }}>
+      
+      <View style={{ 
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}>
+        <Text style={{ 
+          fontSize: 20, 
+          fontWeight: 'bold',
+color: colors.text 
+        }}>
+          Available Jobs
+        </Text>
+        {/* <TouchableOpacity style={{
+          width: 40,
+          height: 40,
+          borderRadius: 20,
+          backgroundColor: '#F3F4F6',
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginBottom:5
+        }}>
+          <Ionicons name="options-outline" size={20} color={colors.icon || '#374151'} />
+        </TouchableOpacity> */}
+      </View>
+      
+      <View style={{ 
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.input || '#FFFFFF',
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        borderRadius: 12,
+        paddingHorizontal: 12,
+        height: 50,
+        marginBottom: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        elevation: 2,
+      }}>
+        <Ionicons name="search-outline" size={20} color={colors.icon || '#9CA3AF'} style={{ marginRight: 8 }} />
+        <TextInput
+          placeholder="Search jobs..."
+          placeholderTextColor={colors.placeholder || '#9CA3AF'}
+          value={searchQuery}
+          onChangeText={handleSearch}
+          style={{
+            flex: 1,
+            fontSize: 16,
+            color: 'black',
+          }}
+        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={() => handleSearch('')}>
+            <Ionicons name="close-circle" size={20} color={colors.icon || "#9CA3AF"} />
+          </TouchableOpacity>
+        )}
+      </View>
+      
+
+
+      {filteredData.length === 0 ? (
+        <EmptyListComponent />
+      ) : (
+        <View style={{ height: 300 }}>
+          <FlatList
+            data={searchQuery.length >= 3 ? filteredData : dummyData}
+            renderItem={renderItem}
+            keyExtractor={item => item.id.toString()}
+            contentContainerStyle={{
+              paddingBottom: 20,
+            }}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
+      )}
+      </View>
+  )
+}
+
+const NavButton = ({ item, onPress, theme }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  // const colors = COLORS[theme];
   
   const onPressIn = () => {
     Animated.timing(scaleAnim, {
@@ -235,10 +634,11 @@ const NavButton = ({ item, onPress }) => {
         <Animated.View 
           style={[
             styles.navButtonCenterInner,
+            { backgroundColor: theme.colors.specialButton },
             { transform: [{ scale: scaleAnim }] }
           ]}
         >
-          <Icon name={item.icon} size={24} color="#fff" />
+          <Icon name={item.icon} size={24} color={theme.colors.specialButtonText} />
         </Animated.View>
       </TouchableOpacity>
     );
@@ -252,8 +652,15 @@ const NavButton = ({ item, onPress }) => {
       onPressOut={onPressOut}
     >
       <Animated.View style={{ transform: [{ scale: scaleAnim }], alignItems: 'center' }}>
-        <Icon name={item.icon} size={22} color={item.active ? "#fff" : "#aaa"} />
-        <Text style={[styles.navText, item.active && styles.navTextActive]}>{item.label}</Text>
+        <Icon 
+          name={item.icon} 
+          size={22} 
+          color={item.active ? theme.colors.navIconActive : theme.colors.navIcon} 
+        />
+        <Text style={[
+          styles.navText,
+          { color: item.active ? theme.colors.navTextActive : theme.colors.navText }
+        ]}>{item.label}</Text>
       </Animated.View>
     </TouchableOpacity>
   );
@@ -261,17 +668,24 @@ const NavButton = ({ item, onPress }) => {
 
 const HomeScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const scrollY = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const headerTranslateY = useRef(new Animated.Value(-100)).current;
   const searchBarTranslateX = useRef(new Animated.Value(-WIDTH)).current;
   const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(false);
+  const navigation = useNavigation();
+    // const { theme } = useContext(ProfileContext);
+  const { theme, toggleTheme ,isDarkModee} = useContext(ProfileContext);
+
+
+  // Toggle theme handler
+  const toggleThemee = () => setIsDarkMode((prevState) => !prevState);
 
   // Animation on component mount
   useEffect(() => {
-    // Sequence of animations for a smooth app startup
     Animated.sequence([
-      // Header slides down
       Animated.timing(headerTranslateY, {
         toValue: 0,
         duration: 500,
@@ -279,16 +693,12 @@ const HomeScreen = () => {
         useNativeDriver: true,
         easing: Easing.out(Easing.cubic),
       }),
-      
-      // Search bar slides in from left
       Animated.timing(searchBarTranslateX, {
         toValue: 0,
         duration: 500,
         useNativeDriver: true,
         easing: Easing.out(Easing.cubic),
       }),
-      
-      // Main content fades in
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 600,
@@ -298,86 +708,10 @@ const HomeScreen = () => {
     ]).start();
   }, []);
 
-  // Header animation based on scroll
-  const headerOpacity = scrollY.interpolate({
-    inputRange: [0, 100],
-    outputRange: [0, 1],
-    extrapolate: 'clamp',
-  });
 
-  // Render horizontal featured item
-  const renderFeaturedItem = ({ item, index, scrollY }) => {
-    const ITEM_HEIGHT = 250; // Adjust to your actual card height
-    const inputRange = [
-      (index - 1) * ITEM_HEIGHT,
-      index * ITEM_HEIGHT,
-      (index + 1) * ITEM_HEIGHT,
-    ];
-  
-    const scale = scrollY.interpolate({
-      inputRange,
-      outputRange: [0.9, 1, 0.9],
-      extrapolate: 'clamp',
-    });
-  
-    return (
-      <Animated.View
-        style={[
-          styles.featuredCard,
-          {
-            transform: [{ scale }],
-          },
-        ]}
-      >
-        <View style={styles.featuredCardInner}>
-          <View style={styles.featuredTextContainer}>
-            <Text style={styles.featuredTitle}>{item.title}</Text>
-            <Text style={styles.featuredSubtitle}>{item.subtitle}</Text>
-            <TouchableOpacity style={styles.featuredButton}>
-              <Text style={styles.featuredButtonText}>View</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.featuredImagePlaceholder}>
-            <View style={styles.featuredImage} />
-          </View>
-        </View>
-      </Animated.View>
-    );
-  };
-  
 
-  // Render grid layout
-  const renderGridLayout = () => {
-    const rows = [];
-    let i = 0;
-    const items = [...appData.featured]; // Clone to avoid mutations
-    
-    while (i < items.length) {
-      const rowItems = i + 1 < items.length ? [items[i], items[i + 1]] : [items[i]];
-      const isSingleItem = rowItems.length === 1;
-      
-      rows.push(
-        <View key={`row-${i}`} style={[styles.featuredRow, isSingleItem && { justifyContent: 'center' }]}>
-          {rowItems.map((item, idx) => (
-            <ContentCard 
-              key={item.id} 
-              item={item} 
-              isHorizontal={false} 
-              index={i + idx} 
-            />
-          ))}
-        </View>
-      );
-      
-      i += 2;
-    }
-    
-    return <View>{rows}</View>;
-  };
 
-  // Animation for section transitions
   const animateSectionChange = (sectionId) => {
-    // Create a wave effect by animating opacity and scale
     Animated.sequence([
       Animated.parallel([
         Animated.timing(fadeAnim, {
@@ -399,176 +733,159 @@ const HomeScreen = () => {
     ]).start();
   };
 
-  // Handle navigation item press
-  const handleNavPress = (item) => {
-    // Animate the section change
-    animateSectionChange(item.id);
-    
-    // if (item.id === 'home') {
-    //   // Animate before logout
-    //   Animated.sequence([
-    //     Animated.timing(fadeAnim, {
-    //       toValue: 0.5,
-    //       duration: 300,
-    //       useNativeDriver: true
-    //     }),
-    //     Animated.timing(fadeAnim, {
-    //       toValue: 0,
-    //       duration: 300,
-    //       useNativeDriver: true
-    //     })
-    //   ]).start(() => {
-    //     clearAll();
-    //     dispatch(checkuserToken());
-    //   });
-    // }
-    // Add other navigation handling here
+  const handleLogout = () => {
+    setIsLoading(true);
+
+    Animated.sequence([
+      Animated.timing(fadeAnim, {
+        toValue: 0.5,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start(async () => {
+      await clearAll();
+      dispatch(checkuserToken());
+      setIsLoading(false);
+    });
   };
 
-  return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
-      
-      {/* Animated header background */}
-      <Animated.View style={[styles.headerBackground, { opacity: headerOpacity }]} />
-      
-      {/* Header */}
-      <Animated.View 
-        style={[
-          styles.header,
-          { transform: [{ translateY: headerTranslateY }] }
-        ]}
-      >
-        <View style={styles.headerContent}>
-          <TouchableOpacity 
-            style={styles.profileButton}
-            // onPress={() => {
-            //   // Add a wobble animation to the menu button
-            //   const wobbleAnim = Animated.sequence([
-            //     Animated.timing(headerTranslateY, { toValue: -5, duration: 50, useNativeDriver: true }),
-            //     Animated.timing(headerTranslateY, { toValue: 5, duration: 100, useNativeDriver: true }),
-            //     Animated.timing(headerTranslateY, { toValue: -3, duration: 100, useNativeDriver: true }),
-            //     Animated.timing(headerTranslateY, { toValue: 0, duration: 50, useNativeDriver: true })
-            //   ]);
-            //   wobbleAnim.start();
-            // }}
-          >
-            <Octicons name="three-bars" size={24} color="#fff" />
-          </TouchableOpacity>
-          <View style={styles.headerTitleContainer}>
-            <Text style={styles.welcomeText}>Welcome back</Text>
-            <Text style={styles.usernameText}>LOTUS</Text>
-          </View>
-          <TouchableOpacity 
-            style={styles.notificationButton}
-            onPress={() => {
-              // Add scale animation before logout
-              Animated.sequence([
-                Animated.timing(fadeAnim, {
-                  toValue: 0.5,
-                  duration: 300,
-                  useNativeDriver: true
-                }),
-                Animated.timing(fadeAnim, {
-                  toValue: 0,
-                  duration: 300,
-                  useNativeDriver: true
-                })
-              ]).start(() => {
-                clearAll();
-                dispatch(checkuserToken());
-              });
-            }}
-          >
-            <Icon name="logout" size={24} color="#Dc4D01" />
-          </TouchableOpacity>
+  const handleNavPress = (item) => {
+    animateSectionChange(item.id);
+    switch (item.id) {
+      case 'home':
+        navigation.navigate('Home');
+        break;
+      case 'settings':
+        navigation.navigate('Settings');
+        break;
+      case 'favorites':
+        navigation.navigate('FavoritesScreen');
+        break;
+      case 'profile':
+        navigation.navigate('Profile');
+        break;
+      case 'create':
+        navigation.navigate('CreateJob');
+        break;
+      default:
+        break;
+    }
+  };
+  
+
+  useEffect(() => {
+    console.log('Current theme:88888888888888888888888888888888888888', theme);
+   
+  }, [theme]);
+
+return (
+  <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <StatusBar barStyle={theme.colors.statusBar} backgroundColor={theme.colors.headerBackground} />
+
+    {/* Header Background */}
+    <View style={[styles.headerBackground, { backgroundColor: theme.colors.headerBackground }]} />
+
+    {/* Header */}
+    <View style={[styles.header, { backgroundColor: theme.colors.headerBackground }]}>
+      <View style={styles.headerContent}>
+        <TouchableOpacity 
+          style={[styles.profileButton, { backgroundColor: theme.colors.profileButtonBg }]}
+          onPress={() => navigation.openDrawer()}
+        >
+          <Octicons name="three-bars" size={24} color={theme.colors.headerText} />
+        </TouchableOpacity>
+
+        <View style={styles.headerTitleContainer}>
+          <Text style={[styles.welcomeText, { color: theme.colors.headerSubtext }]}>
+            Welcome back
+          </Text>
+          <Text style={[styles.usernameText, { color: theme.colors.headerText }]}>
+            LOTUS
+          </Text>
         </View>
-      </Animated.View>
-      
-      {/* Main content */}
-      <Animated.ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.contentContainer}
-        showsVerticalScrollIndicator={false}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: true }
-        )}
-        scrollEventThrottle={16}
-      >
-        <Animated.View style={{ opacity: fadeAnim }}>
-          {/* Search bar */}
-          <Animated.View 
-            style={[
-              styles.searchContainer,
-              { transform: [{ translateX: searchBarTranslateX }] }
-            ]}
-          >
-            <Icon name="search" size={20} color="rgba(255,255,255,0.5)" style={styles.searchIcon} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search products or services..."
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              onFocus={() => {
-                // Light pulse animation when search is focused
-                Animated.sequence([
-                  Animated.timing(searchBarTranslateX, {
-                    toValue: 5,
-                    duration: 100,
-                    useNativeDriver: true
-                  }),
-                  Animated.timing(searchBarTranslateX, {
-                    toValue: 0,
-                    duration: 100,
-                    useNativeDriver: true
-                  })
-                ]).start();
-              }}
-            />
-          </Animated.View>
-          
-          {/* Grid layout section */}
-          <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>Quick Access</Text>
-            {renderGridLayout()}
-          </View>
-          
-          {/* Horizontal scrolling section */}
-          <ContentSection
-  title="Featured"
-  data={appData.featured}
-  renderItem={({ item, index }) =>
-    renderFeaturedItem({ item, index, scrollY })
-  }
-  horizontal={false}
-  style={{ alignItems: 'center' }}
-  scrollY={scrollY}
-/>
 
+        <TouchableOpacity
+          style={[styles.notificationButton, { backgroundColor: theme.colors.notificationButtonBg }]}
+          onPress={handleLogout}
+        >
+          <Icon name="logout" size={24} color={theme.colors.headerText} />
+        </TouchableOpacity>
 
-        </Animated.View>
-      </Animated.ScrollView>
-      
-      {/* Bottom navigation */}
-      <View style={styles.bottomNavigation}>
-        {appData.navigation.map(item => (
-          <NavButton 
-            key={item.id} 
-            item={item} 
-            onPress={() => handleNavPress(item)} 
+        <View style={styles.switchContainer}>
+          <Switch
+            value={isDarkModee}
+            onValueChange={toggleTheme}
+            trackColor={{ false: '#E5E7EB', true: '#4B5563' }}
+            thumbColor={isDarkMode ? '#FFFFFF' : '#9CA3AF'}
           />
-        ))}
+        </View>
       </View>
     </View>
-  );
+
+    {/* Main Content */}
+    <View style={{ flex: 1 }}>
+     
+      <View style={[styles.statsContainer, { backgroundColor: theme.colors.cardBackground }]}>
+        {appData.profileStats.map((stat, index) => (
+          <View
+            key={index}
+            style={[
+              styles.statItem,
+              {
+                borderRightColor: theme.colors.cardBorder,
+                borderRightWidth: index < appData.profileStats.length - 1 ? 1 : 0
+              }
+            ]}
+          >
+            <Text style={[styles.statValue, { color: theme.colors.text }]}>{stat.value}</Text>
+            <Text style={[styles.statLabel, { color: theme.colors.subtext }]}>{stat.label}</Text>
+          </View>
+        ))}
+      </View>
+
+      {/* Optional Tabs */}
+<TopTabs theme={theme} colors={theme.colors} />
+    </View>
+
+    {/* Bottom Navigation */}
+    <View
+      style={[
+        styles.bottomNavigation,
+        {
+          backgroundColor: theme.colors.navBackground,
+          borderTopColor: theme.colors.navBorder
+        }
+      ]}
+    >
+      {appData.navigation.map(item => (
+        <NavButton
+          key={item.id}
+          item={item}
+          onPress={() => handleNavPress(item)}
+          theme={theme}
+        />
+      ))}
+    </View>
+
+    {/* Loader */}
+    <Loader visible={isLoading} />
+  </View>
+);
+
+
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F172A', // Deep blue background
+  },
+   listContent: {
+    padding: 16,
   },
   headerBackground: {
     position: 'absolute',
@@ -576,7 +893,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 100,
-    backgroundColor: '#3B82F6', // Bright blue header
     zIndex: 1,
   },
   header: {
@@ -598,16 +914,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitleContainer: {
-    alignItems: 'center',
+    flex: 1,
+    paddingHorizontal: 10,
   },
   welcomeText: {
-    color: 'rgba(255,255,255,0.8)',
     fontSize: 14,
+          fontFamily:PlusJakartaSansBold
   },
   usernameText: {
-    color: '#fff',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily:DMSans36ptBold
   },
   notificationButton: {
     width: 40,
@@ -615,7 +931,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(215, 180, 180, 0.91)',
+  },
+  switchContainer: {
+    marginLeft: 10,
   },
   scrollView: {
     flex: 1,
@@ -630,7 +948,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingHorizontal: 15,
     height: 50,
-    backgroundColor: 'rgba(185, 226, 206, 0.41)', 
     borderRadius: 10,
   },
   searchIcon: {
@@ -639,14 +956,41 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     height: 50,
-    color: '#fff',
+    fontSize: 16,
   },
+  statsContainer: {
+  flexDirection: 'row',
+  marginHorizontal: 20,
+  marginVertical: 20,
+  borderRadius: 15,
+  overflow: 'hidden',
+  paddingVertical: 20,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+  elevation: 3,
+},
+statItem: {
+  flex: 1,
+  alignItems: 'center',
+  paddingHorizontal: 10,
+},
+statValue: {
+  fontSize: 24,
+  // fontWeight: 'bold',
+  marginBottom: 5,
+fontFamily:UbuntuBold
+},
+statLabel: {
+  fontSize: 14,
+  fontWeight: '500',
+},
   sectionContainer: {
     marginTop: 30,
     paddingHorizontal: 20,
   },
   sectionTitle: {
-    color: '#fff',
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 15,
@@ -654,9 +998,6 @@ const styles = StyleSheet.create({
   featuredListContainer: {
     alignItems: 'center',
     paddingVertical: 10,
-  },  
-  gridListContainer: {
-    width: '100%',
   },
   featuredRow: {
     flexDirection: 'row',
@@ -666,17 +1007,17 @@ const styles = StyleSheet.create({
   featuredCard: {
     width: WIDTH * 0.8,
     height: 150,
-    backgroundColor: '#1E293B', // Card background
     borderRadius: 15,
     marginLeft: 20,
     overflow: 'hidden',
+    borderWidth: 1,
   },
   gridCard: {
-    width: WIDTH * 0.43,
+    width: WIDTH * 0.433,
     height: 130,
-    backgroundColor: '#1E293B', // Card background
     borderRadius: 15,
     overflow: 'hidden',
+    borderWidth: 1,
   },
   featuredCardInner: {
     flex: 1,
@@ -695,47 +1036,40 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   featuredTitle: {
-    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 5,
   },
   quickAccessTitle: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 3,
   },
   featuredSubtitle: {
-    color: '#94A3B8', // Muted text color
     fontSize: 14,
     marginBottom: 15,
   },
   quickAccessSubtitle: {
-    color: '#94A3B8', // Muted text color
     fontSize: 12,
     marginBottom: 10,
   },
   featuredButton: {
-    backgroundColor: '#10B981', // Teal accent color
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 8,
     alignSelf: 'flex-start',
   },
   quickAccessButton: {
-    backgroundColor: '#10B981', // Teal accent color
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 8,
     borderRadius: 6,
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
+    marginTop: 10,
   },
   featuredButtonText: {
-    color: '#fff',
     fontWeight: 'bold',
   },
   quickAccessButtonText: {
-    color: '#fff',
     fontWeight: 'bold',
     fontSize: 12,
   },
@@ -749,17 +1083,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  placeholderImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 8,
+  },
+  featuredImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+  },
   bottomNavigation: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     height: 70,
-    backgroundColor: '#1E293B', // Nav bar background
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
+    borderTopWidth: 1,
   },
   navButton: {
     flex: 1,
@@ -770,7 +1114,6 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#F97316', 
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
@@ -779,18 +1122,35 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#F97316', // Teal accent color
     alignItems: 'center',
     justifyContent: 'center',
   },
   navText: {
-    color: '#94A3B8', // Muted text
     fontSize: 12,
     marginTop: 4,
   },
-  navTextActive: {
-    color: '#fff',
-    fontWeight: 'bold',
+   card: {
+   backgroundColor: '#FFFFFF',
+    padding: 20,
+    borderRadius: 16,
+    marginBottom: 16,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 10,
+    borderLeftWidth: 6,
+    borderLeftColor: '#3B82F6',
+  },  
+  cardTitle: {
+      fontSize: 18,
+    fontWeight: '700',
+    color: '#111827', 
+  },
+  cardDescription: {
+   marginTop: 8,
+    fontSize: 14,
+    color: '#4B5563',
   },
 });
 

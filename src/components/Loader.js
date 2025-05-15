@@ -46,7 +46,7 @@ export const Loader = ({
               source={LOGO}
             />
           </View> */}
-          <ActivityIndicator size="large" color={BRAND} />
+          <ActivityIndicator size="large" color={'#FF9800'} />
         </View>
       </View>
     </Modal>

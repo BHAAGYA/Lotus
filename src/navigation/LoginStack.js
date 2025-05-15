@@ -5,6 +5,7 @@ import Login from '../Pages/Login/Login';
 import Signup from '../Pages/Signup/Signup';
 import Terms from './../Pages/Terms/Terms';
 import Admin from '../Pages/Admin/Admin';
+import ForgotPassword from '../Pages/Login/ForgotPassword';
 
 const Stack = createNativeStackNavigator();
 export default LoginStack = () => {
@@ -35,6 +36,12 @@ export default LoginStack = () => {
         options={{ headerShown: false }}
         name="Admin"
         component={Admin}
+      />
+      <Stack.Screen
+      
+        options={{ headerShown: false }}
+        name="ForgotPassword"
+        component={ForgotPassword}
       />
     </Stack.Navigator>
   );
