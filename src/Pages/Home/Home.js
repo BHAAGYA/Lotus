@@ -59,7 +59,7 @@ const TopTabs = ({ theme, colors }) => {
     >
       <Tab.Screen name="Assigned Jobs" component={AssignedJobs} />
 <Tab.Screen 
-  name="Approx Jobs" 
+  name="Approx Jobs"
   children={() => <ApproxJobs theme={theme} colors={colors} />} 
 />
     </Tab.Navigator>
