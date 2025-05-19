@@ -66,7 +66,7 @@ export const GETNETWORK = async (url, token = false) => {
   if (token) {
     let loginRes = await getObjByKey('loginResponse');
     console.log('here i am ',loginRes);
-    headers = { ...headers, Authorization: `Bearer ${loginRes?.token}` };
+    headers = { ...headers, Authorization: `Token ${loginRes?.token}` };
   }
   // console.log(headers);
   return fetch(url, {

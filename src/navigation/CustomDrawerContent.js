@@ -24,7 +24,8 @@ const ANIMATION_DURATION = 400;
 const CustomDrawerContent = (props) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const[user,setUser]=useState('')
-  const { profileImage } = useContext(ProfileContext);
+  const { profileImage,theme } = useContext(ProfileContext);
+  
 
   const navigation=useNavigation()
   
@@ -143,20 +144,20 @@ const CustomDrawerContent = (props) => {
       const label = options.drawerLabel || options.title || route.name;
       
       // Define icons for each route with dynamic color based on active index
-      const icons = {
-        Home: <Ionicons name="home-outline" size={24} color={activeRoute === index ? "#ffffff" : "#9CA3AF"} />,
-        Profile: <Ionicons name="person-outline" size={24} color={activeRoute === index ? "#ffffff" : "#9CA3AF"} />,
-        Settings: <Ionicons name="settings-outline" size={24} color={activeRoute === index ? "#ffffff" : "#9CA3AF"} />,
-        Notifications: <Ionicons name="notifications-outline" size={24} color={activeRoute === index ? "#ffffff" : "#9CA3AF"} />,
-        Favorites: <Ionicons name="heart-outline" size={24} color={activeRoute === index ? "#ffffff" : "#9CA3AF"} />,
-      };
+      // const icons = {
+        // Home: <Ionicons name="home-outline" size={24} color={activeRoute === index ? "#ffffff" : "#9CA3AF"} />,
+        // Profile: <Ionicons name="person-outline" size={24} color={activeRoute === index ? "#ffffff" : "#9CA3AF"} />,
+        // Settings: <Ionicons name="settings-outline" size={24} color={activeRoute === index ? "#ffffff" : "#9CA3AF"} />,
+        // Notifications: <Ionicons name="notifications-outline" size={24} color={activeRoute === index ? "#ffffff" : "#9CA3AF"} />,
+        // Favorites: <Ionicons name="heart-outline" size={24} color={activeRoute === index ? "#ffffff" : "#9CA3AF"} />,
+      // };
 
       return (
         <CustomDrawerItem
           key={route.key}
           index={index}
           label={label}
-          icon={icons[route.name] || <Ionicons name="apps-outline" size={24} color={activeRoute === index ? "#ffffff" : "#9CA3AF"} />}
+          // icon={icons[route.name] || <Ionicons name="apps-outline" size={24} color={activeRoute === index ? "black" : "black"} />}
           isActive={activeRoute === index}
           onPress={() => props.navigation.navigate(route.name)}
         />
@@ -187,20 +188,28 @@ const CustomDrawerContent = (props) => {
 //     )
 
   return (
-    <LinearGradient
-    // colors={['#0D1B2A', '#1E3A8A', '#4F81BD']}
-    //  colors={['#000080', '#1E40AF', '#4B8BFA']}
-    colors={['#141E30', '#243B55', '#3a6073']}
-    
-
-    style={styles.container}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-    >
+<LinearGradient
+  colors={
+    theme.dark
+      ? ['#141E30', '#243B55', '#3a6073'] // Dark mode
+      : ['#E0EAFC', '#CFDEF3']            // Light mode
+  }
+  style={styles.container}
+  start={{ x: 0, y: 0 }}
+  end={{ x: 1, y: 1 }}
+>
       <StatusBar barStyle="light-content" backgroundColor="#111827" translucent={Platform.OS === 'android'} />
       
       <Animated.View style={[styles.header, { transform: [{ translateY: headerTranslateY }] }]}>
-        <LinearGradient colors={['#4F46E5', '#6366F1']} style={styles.headerGradient}>
+        <LinearGradient  colors= {
+    theme.dark
+      ? ['#0B0F1A', '#1E293B', '#3B4252']
+
+// Dark mode
+      : ['#4F46E5', '#4361EE']            // Light mode
+  }
+       
+        style={styles.headerGradient}>
           <Animated.View style={{ transform: [{ scale: profileImageScale }] }}>
                <Image
         source={
@@ -227,7 +236,7 @@ const CustomDrawerContent = (props) => {
         </LinearGradient>
       </Animated.View>
 
-      <View style={styles.drawerItems}>{renderDrawerItems()}</View>
+      {/* <View style={styles.drawerItems}>{renderDrawerItems()}</View> */}
 
       <Animated.View style={[styles.footer, { transform: [{ translateY: footerTranslateY }] }]}>
         <View style={styles.divider} />
@@ -236,12 +245,12 @@ const CustomDrawerContent = (props) => {
             navigation.navigate('Settings')
         }>
           <Ionicons name="settings-outline" size={22} color="#9CA3AF" />
-          <Text style={styles.settingsText}>Settings</Text>
+          <Text style={[styles.settingsText,{ color: theme.colors.text }]}>Settings</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.helpButton} onPress={() => alert('Help')}>
           <Ionicons name="help-circle-outline" size={22} color="#9CA3AF" />
-          <Text style={styles.helpText}>Help & Support</Text>
+          <Text style={[styles.helpText,{ color: theme.colors.text }]}>Help & Support</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.logoutButton} onPress={() => alert('Logout')}>
@@ -403,6 +412,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 5,
+    justifyContent:'flex-end'
   },
   logoutGradient: {
     flexDirection: 'row',

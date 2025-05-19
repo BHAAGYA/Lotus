@@ -16,6 +16,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Octicons from 'react-native-vector-icons/Octicons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+
 import { clearAll } from '../../utils/Storage';
 import { useDispatch } from 'react-redux';
 import { checkuserToken } from '../../redux/actions/auth';
@@ -57,7 +58,14 @@ const TopTabs = ({ theme, colors }) => {
         tabBarPressColor: theme === 'dark' ? '#1F2937' : '#F3F4F6',
       }}
     >
-      <Tab.Screen name="Assigned Jobs" component={AssignedJobs} />
+      {/* <Tab.Screen name="Assigned Jobs" component={AssignedJobs} /> */}
+
+<Tab.Screen 
+  name="Assigned Jobs"
+  children={() => <AssignedJobs theme={theme} colors={colors} 
+  
+  />} 
+/>
 <Tab.Screen 
   name="Approx Jobs"
   children={() => <ApproxJobs theme={theme} colors={colors} />} 
@@ -144,9 +152,10 @@ const appData = {
     { id: 'profile', label: 'Profile', icon: 'person', active: false },
   ],
  profileStats : [
-    { label: 'Assigned', value: '24' },
-    { label: 'Completed', value: '8' },
-    { label: 'Pending', value: '15' },
+    { label: 'Assigned', value: '24', icon: 'briefcase-outline', color: 'blue' },
+    { label: 'Completed', value: '8', icon: 'checkmark-circle-outline', color: 'green'},
+    { label: 'Pending', value: '15', icon: 'time-outline', color: 'orange' },
+
   ]
 };
 const dummyData = [
@@ -159,215 +168,7 @@ const dummyData = [
 
 
 
-const AssignedJobs = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filteredData, setFilteredData] = useState(dummyData);
-  // const isDarkMode = useColorScheme() === 'dark';
-// const colors = isDarkMode ? COLORS.dark : COLORS.light;
 
-  const handleSearch = (text) => {
-    const normalizedText = text.toLowerCase().replace(/\s+/g, '').trim();
-    setSearchQuery(text);
-
-    if (normalizedText.length >= 3) {
-      const filtered = dummyData.filter(item => {
-        const title = item.title.toLowerCase().replace(/\s+/g, '').trim();
-        const description = item.description.toLowerCase().replace(/\s+/g, '').trim();
-        return title.includes(normalizedText) || description.includes(normalizedText);
-      });
-      setFilteredData(filtered);
-    } else {
-      setFilteredData(dummyData); // Show all if less than 3 characters
-    }
-  };
-
-  const renderItem = ({ item }) => (
-    <TouchableOpacity 
-      style={{
-        backgroundColor: '#FFFFFF',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 10,
-        elevation: 3,
-        borderLeftWidth: 4,
-      }}
-    >
-      <View style={{ 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'flex-start',
-        // marginBottom: 8
-      }}>
-        <View style={{ flex: 1 }}>
-          <Text style={{ 
-            fontSize: 18, 
-            fontWeight: '600', 
-            color: '#1F2937',
-            // marginBottom: 4
-          }}>
-            {item.title}
-          </Text>
-    
-        </View>
-    
-      </View>
-      
-      <Text style={{ 
-        fontSize: 14, 
-        color: '#4B5563',
-        // lineHeight: 20,
-        marginBottom: 8
-      }}>
-        {item.description}
-      </Text>
-      
-      <View style={{ 
-        flexDirection: 'row', 
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        borderTopWidth: 1,
-        borderTopColor: '#E5E7EB',
-        paddingTop: 10
-      }}>
-        <TouchableOpacity style={{
-          backgroundColor: '#F3F4F6',
-          paddingHorizontal: 12,
-          paddingVertical: 6,
-          borderRadius: 8,
-          flexDirection: 'row',
-          alignItems: 'center'
-        }}>
-          <Ionicons name="eye-outline" size={16} color="#4B5563" style={{ marginRight: 4 }} />
-          <Text style={{ fontSize: 12, color: '#4B5563', fontWeight: '500' }}>View Details</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={{
-          backgroundColor: '#3B82F6',
-          paddingHorizontal: 12,
-          paddingVertical: 6,
-          borderRadius: 8,
-          flexDirection: 'row',
-          alignItems: 'center'
-        }}>
-          <Ionicons name="briefcase-outline" size={16} color="#FFFFFF" style={{ marginRight: 4 }} />
-          <Text style={{ fontSize: 12, color: '#FFFFFF', fontWeight: '500' }}>Apply Now</Text>
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-  );
-
-  const EmptyListComponent = () => (
-    <View style={{ 
-      flex: 1, 
-      // justifyContent: 'center', 
-      alignItems: 'center',
-      // paddingTop: 20
-    }}>
-      <Ionicons name="search-outline" size={60} color="#D1D5DB" />
-      <Text style={{ 
-        textAlign: 'center', 
-        marginTop: 16, 
-        fontSize: 18, 
-        fontWeight: '500',
-        color: '#6B7280' 
-      }}>
-        No jobs found
-      </Text>
-      
-    </View>
-  );
-
-  return (
-    <View style={{ 
-      flex: 1,
-      padding: 12,
-      backgroundColor: '#F9FAFB'
-    }}>
-      
-      <View style={{ 
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }}>
-        <Text style={{ 
-          fontSize: 20, 
-          color: '#111827',
-          fontFamily:PlusJakartaSansBold
-        }}>
-          Assigned Jobs
-        </Text>
-        <TouchableOpacity style={{
-          width: 40,
-          height: 40,
-          borderRadius: 20,
-          backgroundColor: '#F3F4F6',
-          justifyContent: 'center',
-          alignItems: 'center',
-          marginBottom:5
-        }}>
-          <Ionicons name="options-outline" size={20} color="#374151" />
-        </TouchableOpacity>
-      </View>
-      
-      <View style={{ 
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#FFFFFF',
-        borderWidth: 1,
-        borderColor: '#E5E7EB',
-        borderRadius: 12,
-        paddingHorizontal: 12,
-        height: 50,
-        marginBottom: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 3,
-        elevation: 2,
-      }}>
-        <Ionicons name="search-outline" size={20} color="#9CA3AF" style={{ marginRight: 8 }} />
-        <TextInput
-          placeholder="Search jobs..."
-          placeholderTextColor="#9CA3AF"
-          value={searchQuery}
-          onChangeText={handleSearch}
-          style={{
-            flex: 1,
-            fontSize: 16,
-            color: '#1F2937',
-          }}
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={() => handleSearch('')}>
-            <Ionicons name="close-circle" size={20} color="#9CA3AF" />
-          </TouchableOpacity>
-        )}
-      </View>
-      
-
-
-      {filteredData.length === 0 ? (
-        <EmptyListComponent />
-      ) : (
-        <View style={{ height: 300 }}>
-          <FlatList
-            data={searchQuery.length >= 3 ? filteredData : dummyData}
-            renderItem={renderItem}
-            keyExtractor={item => item.id.toString()}
-            contentContainerStyle={{
-              paddingBottom: 20,
-            }}
-            showsVerticalScrollIndicator={false}
-          />
-        </View>
-      )}
-      </View>
-  )
-}
 const ApproxJobs = ({ theme, colors }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredData, setFilteredData] = useState(dummyData);
@@ -391,7 +192,7 @@ const ApproxJobs = ({ theme, colors }) => {
   const renderItem = ({ item }) => (
     <TouchableOpacity 
       style={{
-        backgroundColor: colors.card,
+        backgroundColor: colors.jobCard,
         borderRadius: 12,
         padding: 16,
         marginBottom: 12,
@@ -401,7 +202,7 @@ const ApproxJobs = ({ theme, colors }) => {
         shadowRadius: 10,
         elevation: 3,
   borderLeftWidth: 4,
-        borderLeftColor: colors.primary || '#3B82F6'      }}
+        borderLeftColor: colors.jobCardBorder     }}
     >
       <View style={{ 
         flexDirection: 'row', 
@@ -413,44 +214,19 @@ const ApproxJobs = ({ theme, colors }) => {
           <Text style={{ 
             fontSize: 18, 
             fontWeight: '600', 
-            color: '#1F2937',
+            color: colors.jobCardText
             // marginBottom: 4
           }}>
             {item.title}
           </Text>
-          <View style={{ 
-            flexDirection: 'row', 
-            alignItems: 'center',
-            // marginBottom: 10
-          }}>
-            <View style={{ 
-              paddingHorizontal: 8,
-              // paddingVertical: 2,
-              borderRadius: 12,
-              marginRight: 8
-            }}>
-              <Text style={{ 
-                fontSize: 12, 
-                fontWeight: '500'
-              }}>
-                {item.category}
-              </Text>
-            </View>
-            <Text style={{ 
-              fontSize: 14,
-              color: '#059669',
-              fontWeight: '600'
-            }}>
-              {item.budget}
-            </Text>
-          </View>
+        
         </View>
  
       </View>
       
       <Text style={{ 
         fontSize: 14, 
-        color: '#4B5563',
+            color: colors.jobCardText,
         // lineHeight: 20,
         marginBottom: 8
       }}>
@@ -462,11 +238,11 @@ const ApproxJobs = ({ theme, colors }) => {
         justifyContent: 'space-between',
         alignItems: 'center',
         borderTopWidth: 1,
-        borderTopColor: '#E5E7EB',
+        borderTopColor: colors.jobCardBorder,
         paddingTop: 10
       }}>
         <TouchableOpacity style={{
-          backgroundColor: '#F3F4F6',
+          backgroundColor:  colors.jobCardBorder,
           paddingHorizontal: 12,
           paddingVertical: 6,
           borderRadius: 8,
@@ -478,7 +254,7 @@ const ApproxJobs = ({ theme, colors }) => {
         </TouchableOpacity>
         
         <TouchableOpacity style={{
-          backgroundColor: '#3B82F6',
+          backgroundColor:  colors.jobViewBackground,
           paddingHorizontal: 12,
           paddingVertical: 6,
           borderRadius: 8,
@@ -524,13 +300,14 @@ backgroundColor: colors.background
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom:10
       }}>
         <Text style={{ 
           fontSize: 20, 
           fontWeight: 'bold',
 color: colors.text 
         }}>
-          Available Jobs
+          Approx Jobs
         </Text>
         {/* <TouchableOpacity style={{
           width: 40,
@@ -600,6 +377,226 @@ color: colors.text
       </View>
   )
 }
+const AssignedJobs = ({ theme, colors }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredData, setFilteredData] = useState(dummyData);
+
+  const handleSearch = (text) => {
+    const normalizedText = text.toLowerCase().replace(/\s+/g, '').trim();
+    setSearchQuery(text);
+
+    if (normalizedText.length >= 3) {
+      const filtered = dummyData.filter(item => {
+        const title = item.title.toLowerCase().replace(/\s+/g, '').trim();
+        const description = item.description.toLowerCase().replace(/\s+/g, '').trim();
+        return title.includes(normalizedText) || description.includes(normalizedText);
+      });
+      setFilteredData(filtered);
+    } else {
+      setFilteredData(dummyData); // Show all if less than 3 characters
+    }
+  };
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity 
+      style={{
+        backgroundColor: colors.jobCard,
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 10,
+        elevation: 3,
+  borderLeftWidth: 4,
+        borderLeftColor: colors.jobCardBorder     }}
+    >
+      <View style={{ 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'flex-start',
+        // marginBottom: 8
+      }}>
+        <View style={{ flex: 1 }}>
+          <Text style={{ 
+            fontSize: 18, 
+            color: colors.jobCardText,
+        fontFamily:UbuntuBold, 
+
+            // marginBottom: 4
+          }}>
+            {item.title}
+          </Text>
+        
+        </View>
+ 
+      </View>
+      
+      <Text style={{ 
+        fontSize: 14,
+        fontFamily:ManropeRegular, 
+            color: colors.jobCardText,
+        // lineHeight: 20,
+        marginBottom: 8
+      }}>
+        {item.description}
+      </Text>
+      
+      <View style={{ 
+        flexDirection: 'row', 
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderTopWidth: 1,
+        borderTopColor: colors.jobCardBorder,
+        paddingTop: 10
+      }}>
+        <TouchableOpacity style={{
+          backgroundColor:  colors.jobCardBorder,
+          paddingHorizontal: 12,
+          paddingVertical: 6,
+          borderRadius: 8,
+          flexDirection: 'row',
+          alignItems: 'center'
+        }}>
+          <Ionicons name="eye-outline" size={16} color="#4B5563" style={{ marginRight: 4 }} />
+          <Text style={{ fontSize: 12, color: '#4B5563', 
+        fontFamily:UbuntuBold, 
+
+           }}>View Details</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={{
+          backgroundColor:  colors.jobViewBackground,
+          paddingHorizontal: 12,
+          paddingVertical: 6,
+          borderRadius: 8,
+          flexDirection: 'row',
+          alignItems: 'center'
+        }}>
+          <Ionicons name="briefcase-outline" size={16} color="#FFFFFF" style={{ marginRight: 4 }} />
+          <Text style={{ fontSize: 12, color: '#FFFFFF', 
+        fontFamily:UbuntuBold, 
+
+           }}>Apply Now</Text>
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
+  );
+
+  const EmptyListComponent = () => (
+    <View style={{ 
+      flex: 1, 
+      // justifyContent: 'center', 
+      alignItems: 'center',
+      // paddingTop: 20
+    }}>
+      <Ionicons name="search-outline" size={60} color="#D1D5DB" />
+      <Text style={{ 
+        textAlign: 'center', 
+        marginTop: 16, 
+        fontSize: 18, 
+        color: '#6B7280' ,
+        fontFamily:ManropeRegular, 
+
+      }}>
+        No jobs found
+      </Text>
+      
+    </View>
+  );
+
+  return (
+    <View style={{ 
+      flex: 1,
+      padding: 12,
+backgroundColor: colors.background
+    }}>
+      
+      <View style={{ 
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom:10
+      }}>
+        <Text style={{ 
+          fontSize: 20, 
+color: colors.text,
+        fontFamily:UbuntuBold, 
+
+        }}>
+          Assigned Jobs
+        </Text>
+        {/* <TouchableOpacity style={{
+          width: 40,
+          height: 40,
+          borderRadius: 20,
+          backgroundColor: '#F3F4F6',
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginBottom:5
+        }}>
+          <Ionicons name="options-outline" size={20} color={colors.icon || '#374151'} />
+        </TouchableOpacity> */}
+      </View>
+      
+      <View style={{ 
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.input || '#FFFFFF',
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        borderRadius: 12,
+        paddingHorizontal: 12,
+        height: 50,
+        marginBottom: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        elevation: 2,
+      }}>
+        <Ionicons name="search-outline" size={20} color={colors.icon || '#9CA3AF'} style={{ marginRight: 8 }} />
+        <TextInput
+          placeholder="Search jobs..."
+          placeholderTextColor={colors.placeholder || '#9CA3AF'}
+          value={searchQuery}
+          onChangeText={handleSearch}
+          style={{
+            flex: 1,
+            fontSize: 16,
+            color: 'black',
+        fontFamily:ManropeRegular, 
+
+          }}
+        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={() => handleSearch('')}>
+            <Ionicons name="close-circle" size={20} color={colors.icon || "#9CA3AF"} />
+          </TouchableOpacity>
+        )}
+      </View>
+      
+
+
+      {filteredData.length === 0 ? (
+        <EmptyListComponent />
+      ) : (
+        <View style={{ height: 300 }}>
+          <FlatList
+            data={searchQuery.length >= 3 ? filteredData : dummyData}
+            renderItem={renderItem}
+            keyExtractor={item => item.id.toString()}
+            contentContainerStyle={{
+              paddingBottom: 20,
+            }}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
+      )}
+      </View>
+  )
+}
 
 const NavButton = ({ item, onPress, theme }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -634,7 +631,7 @@ const NavButton = ({ item, onPress, theme }) => {
         <Animated.View 
           style={[
             styles.navButtonCenterInner,
-            { backgroundColor: theme.colors.specialButton },
+            { backgroundColor: '#FFA900' },
             { transform: [{ scale: scaleAnim }] }
           ]}
         >
@@ -676,12 +673,9 @@ const HomeScreen = () => {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
-    // const { theme } = useContext(ProfileContext);
   const { theme, toggleTheme ,isDarkModee} = useContext(ProfileContext);
 
 
-  // Toggle theme handler
-  const toggleThemee = () => setIsDarkMode((prevState) => !prevState);
 
   // Animation on component mount
   useEffect(() => {
@@ -830,7 +824,23 @@ return (
     {/* Main Content */}
     <View style={{ flex: 1 }}>
      
-      <View style={[styles.statsContainer, { backgroundColor: theme.colors.cardBackground }]}>
+       <View style={styles.statsContainer}>
+                   {appData.profileStats.map((stat, index) => (
+                     <View key={index} style={[styles.statItem, { backgroundColor: theme.colors.surface }]}>
+                       <View style={[styles.statIconContainer, { backgroundColor: stat.color + '20' }]}>
+                         <Ionicons name={stat.icon} size={24} color={stat.color} />
+                       </View>
+                       <Text style={[styles.statValue, { color: theme.colors.text }]}>
+                         {stat.value}
+                       </Text>
+                       <Text style={[styles.statLabel, { color: theme.colors.subtext }]}>
+                         {stat.label}
+                       </Text>
+                     </View>
+                   ))}
+                 </View>
+
+                  {/* <View style={[styles.statsContainer, { backgroundColor: theme.colors.cardBackground }]}>
         {appData.profileStats.map((stat, index) => (
           <View
             key={index}
@@ -846,7 +856,7 @@ return (
             <Text style={[styles.statLabel, { color: theme.colors.subtext }]}>{stat.label}</Text>
           </View>
         ))}
-      </View>
+      </View> */}
 
       {/* Optional Tabs */}
 <TopTabs theme={theme} colors={theme.colors} />
@@ -884,9 +894,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-   listContent: {
-    padding: 16,
-  },
+ 
   headerBackground: {
     position: 'absolute',
     top: 0,
@@ -935,165 +943,47 @@ const styles = StyleSheet.create({
   switchContainer: {
     marginLeft: 10,
   },
-  scrollView: {
-    flex: 1,
-  },
-  contentContainer: {
-    paddingBottom: 90,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 20,
-    marginTop: 20,
-    paddingHorizontal: 15,
-    height: 50,
-    borderRadius: 10,
-  },
-  searchIcon: {
-    marginRight: 10,
-  },
-  searchInput: {
-    flex: 1,
-    height: 50,
-    fontSize: 16,
-  },
+ 
+ 
+
   statsContainer: {
-  flexDirection: 'row',
-  marginHorizontal: 20,
-  marginVertical: 20,
-  borderRadius: 15,
-  overflow: 'hidden',
-  paddingVertical: 20,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-  elevation: 3,
-},
-statItem: {
-  flex: 1,
-  alignItems: 'center',
-  paddingHorizontal: 10,
-},
-statValue: {
-  fontSize: 24,
-  // fontWeight: 'bold',
-  marginBottom: 5,
-fontFamily:UbuntuBold
-},
-statLabel: {
-  fontSize: 14,
-  fontWeight: '500',
-},
-  sectionContainer: {
-    marginTop: 30,
-    paddingHorizontal: 20,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 15,
-  },
-  featuredListContainer: {
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-  featuredRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 15,
+    gap: 12,
+    // marginTop:10,
+    marginBottom:10,
+    margin:10
+    
   },
-  featuredCard: {
-    width: WIDTH * 0.8,
-    height: 150,
-    borderRadius: 15,
-    marginLeft: 20,
-    overflow: 'hidden',
-    borderWidth: 1,
-  },
-  gridCard: {
-    width: WIDTH * 0.433,
-    height: 130,
-    borderRadius: 15,
-    overflow: 'hidden',
-    borderWidth: 1,
-  },
-  featuredCardInner: {
+  statItem: {
     flex: 1,
-    flexDirection: 'row',
+    alignItems: 'center',
     padding: 15,
+    borderRadius: 12,
+    
   },
-  quickAccessInner: {
-    flex: 1,
-    padding: 15,
-  },
-  featuredTextContainer: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  quickAccessText: {
-    flex: 1,
-  },
-  featuredTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  quickAccessTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 3,
-  },
-  featuredSubtitle: {
-    fontSize: 14,
-    marginBottom: 15,
-  },
-  quickAccessSubtitle: {
-    fontSize: 12,
-    marginBottom: 10,
-  },
-  featuredButton: {
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 8,
-    alignSelf: 'flex-start',
-  },
-  quickAccessButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 6,
-    alignSelf: 'center',
-    marginTop: 10,
-  },
-  featuredButtonText: {
-    fontWeight: 'bold',
-  },
-  quickAccessButtonText: {
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  featuredImagePlaceholder: {
-    width: 80,
+  statIconContainer: {
+    width: 45,
+    height: 45,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 8,
   },
-  quickAccessImagePlaceholder: {
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+  statValue: {
+    fontSize: 24,
+    // fontWeight: '700',
+    marginBottom: 4,
+    fontFamily:UbuntuBold
   },
-  placeholderImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 8,
+  statLabel: {
+    fontSize: 12,
+    // fontWeight: '500',
+    textAlign: 'center',
+    fontFamily:ManropeRegular
+
   },
-  featuredImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-  },
-  bottomNavigation: {
+    bottomNavigation: {
     position: 'absolute',
     bottom: 0,
     left: 0,
@@ -1109,6 +999,7 @@ statLabel: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    // backgroundColor:'pink'
   },
   navButtonCenter: {
     width: 50,
@@ -1117,6 +1008,7 @@ statLabel: {
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
+     backgroundColor:'#FFA900'
   },
   navButtonCenterInner: {
     width: 44,
@@ -1128,6 +1020,8 @@ statLabel: {
   navText: {
     fontSize: 12,
     marginTop: 4,
+        fontFamily:UbuntuBold, 
+
   },
    card: {
    backgroundColor: '#FFFFFF',

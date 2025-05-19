@@ -10,6 +10,7 @@ import Settings from '../Pages/Settings/Settings';
 import Profile from '../Pages/Profile/Profile';
 import EditPage from '../Pages/EditPage/EditPage';
 import CreateJob from '../Pages/Create/CreateJob';
+import AddJob from '../Pages/AddJob/AddJob';
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
@@ -56,6 +57,13 @@ const HomeStack: React.FC = () => {
       />
       <Stack.Screen name='CreateJob'
       component={CreateJob}
+       options={{
+        headerShown: false,
+        animation: 'slide_from_right',
+      }}
+      />
+      <Stack.Screen name='AddJob'
+      component={AddJob}
        options={{
         headerShown: false,
         animation: 'slide_from_right',

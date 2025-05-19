@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const LightTheme = {
   dark: false,
   colors: {
-    background: '#F8F9FA',
+    background: '#F2F0EF',
     backgroundGradient: ['#FFFFFF', '#F1F3F5'],
     headerBackground: '#4361EE',
     headerText: '#FFFFFF',
@@ -31,8 +31,66 @@ const LightTheme = {
     profileButtonBg: 'rgba(255, 255, 255, 0.2)',
     notificationButtonBg: 'rgba(255, 255, 255, 0.2)',
     statusBar: 'dark-content',
-    jobCard:'#121826'
-
+    jobCard:'#F2F2F2',
+    jobViewBackground:'#4361EE',
+       jobCardBackground: '#1A2332',
+    jobCardBorder: '#FFA900',
+    jobCardText: 'black',
+    jobCardSubtext: '#CED4DA',
+  modalBackground: 'rgba(0, 0, 0, 0.5)',
+    modalContent: '#FFFFFF',
+      surface: '#F8F9FA',
+    card: '#FFFFFF',
+    
+    // Text colors
+    textJob: '#212529',
+    textSecondary: '#6C757D',
+    textMuted: '#ADB5BD',
+    
+    // Input colors
+    inputBackground: '#FFFFFF',
+    inputBorder: '#E0E4E7',
+    inputBorderFocused: '#FDB462',
+    inputPlaceholder: '#ADB5BD',
+    
+    // Primary colors
+    primary: '#FDB462', // Your existing orange color
+    primaryDark: '#FFA726',
+    primaryLight: '#FFCC80',
+    
+    // Secondary colors
+    secondary: '#4A90E2',
+    secondaryLight: '#E3F2FD',
+    
+    // Status colors
+    success: '#28A745',
+    successLight: '#D4EDDA',
+    error: '#DC3545',
+    errorLight: '#F8D7DA',
+    warning: '#FFC107',
+    warningLight: '#FFF3CD',
+    info: '#17A2B8',
+    infoLight: '#D1ECF1',
+    
+    // Border colors
+    border: '#E0E4E7',
+    borderLight: '#F1F3F4',
+    divider: '#E9ECEF',
+    
+    // Shadow colors
+    shadow: 'rgba(0, 0, 0, 0.1)',
+    shadowLight: 'rgba(0, 0, 0, 0.05)',
+    
+    // Interactive colors
+    interactive: '#FDB462',
+    interactivePressed: '#FFA726',
+    interactiveDisabled: '#F1F3F4',
+    
+    // Table colors
+    tableHeader: '#F8F9FA',
+    tableRowEven: '#FFFFFF',
+    tableRowOdd: '#FAFAFA',
+    tableBorder: '#E0E4E7',
   },
 };
 
@@ -58,24 +116,82 @@ const DarkTheme = {
     navTextActive: '#7B9CFF',
     navIcon: '#ADB5BD',
     navIconActive: '#7B9CFF',
-    specialButton: '#F72585',
+    specialButton: 'green',
     specialButtonText: '#FFFFFF',
     buttonPrimary: '#06D6A0',
     buttonText: '#FFFFFF',
     profileButtonBg: 'rgba(255, 255, 255, 0.12)',
     notificationButtonBg: 'rgba(255, 255, 255, 0.12)',
     statusBar: 'light-content',
-    jobCardBackground: '#1A2332',
-    jobCardBorder: '#2C3E50',
-    jobCardText: '#F8F9FA',
-    jobCardSubtext: '#CED4DA',
     searchBarBackground: 'rgba(28, 36, 54, 0.8)',
     searchBarBorder: '#2C3E50',
     optionsButtonBackground: '#2C3E50',
     tabIndicator: '#7B9CFF',
     tabActive: '#F8F9FA',
     tabInactive: 'rgba(255, 255, 255, 0.7)',
-    jobCard:'#121826'
+    jobCard:'#245F73',
+    jobViewBackground:'#121826',
+    jobCardBackground: '#1A2332',
+    jobCardBorder: '#FFA900',
+    jobCardText: '#F8F9FA',
+    jobCardSubtext: '#CED4DA',
+       surface: '#1E1E1E',
+    card: '#252525',
+    
+    // Text colors
+    textJob: '#FFFFFF',
+    textSecondary: '#B3B3B3',
+    textMuted: '#757575',
+    
+    // Input colors
+    inputBackground: '#2C2C2C',
+    inputBorder: '#404040',
+    inputBorderFocused: '#FDB462',
+    inputPlaceholder: '#757575',
+    
+    // Primary colors
+    primary: '#FDB462', // Keeping the same orange for brand consistency
+    primaryDark: '#E09A47',
+    primaryLight: '#FFCC80',
+    
+    // Secondary colors
+    secondary: '#64B5F6',
+    secondaryLight: '#1A237E',
+    
+    // Status colors
+    success: '#4CAF50',
+    successLight: '#1B5E20',
+    error: '#F44336',
+    errorLight: '#B71C1C',
+    warning: '#FF9800',
+    warningLight: '#E65100',
+    info: '#2196F3',
+    infoLight: '#0D47A1',
+    
+    // Border colors
+    border: '#404040',
+    borderLight: '#2C2C2C',
+    divider: '#333333',
+    
+    // Shadow colors
+    shadow: 'rgba(0, 0, 0, 0.5)',
+    shadowLight: 'rgba(0, 0, 0, 0.3)',
+    
+    // Interactive colors
+    interactive: '#FDB462',
+    interactivePressed: '#E09A47',
+    interactiveDisabled: '#1C1C1C',
+    
+    // Table colors
+    tableHeader: '#2A2A2A',
+    tableRowEven: '#252525',
+    tableRowOdd: '#2C2C2C',
+    tableBorder: '#404040',
+    
+    // Modal colors
+    modalBackground: 'rgba(0, 0, 0, 0.8)',
+    modalContent: '#2C2C2C',
+    
   },
 };
 
